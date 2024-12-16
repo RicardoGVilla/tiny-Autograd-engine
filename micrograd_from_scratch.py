@@ -47,20 +47,27 @@ d2 = a*b + c
 
 class Value:
     ## Dunder methods (magic methods)
-    def __init__(self, data): 
+    ## Adding pointers to keep track of the children of the node
+    ## Keep track of the operation that created the node
+    ## Visualizing the graph
+    def __init__(self, data, _children=(), _op=''): 
         self.data = data 
-
+        self._prev = set(_children)
+        self._op = _op
     def __repr__(self):
         return f"Value(data={self.data})"
 
     def __add__(self, other):
-        return Value(self.data + other.data)
+        out = Value(self.data + other.data, (self, other), '+')
+        return out
 
     def __mul__(self, other):
-        return Value(self.data * other.data)
+        out = Value(self.data * other.data, (self, other), '*')
+        return out
 
 a = Value(2.0)
 b = Value(-3.0)
 c = Value(10.0)
 output = a * b + c
-print(output)
+
+print(output._op)
