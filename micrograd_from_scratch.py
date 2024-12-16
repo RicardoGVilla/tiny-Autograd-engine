@@ -25,7 +25,7 @@ a = 2.0
 b = - 3.0 
 c = 10.0 
 d = a*b + c 
-print(d)
+# print(d)
 
 
 # looking for the derivative of d with respect to a, b, and c 
@@ -39,6 +39,28 @@ d1 = a*b + c
 a += h 
 d2 = a*b + c
 
-print("d1", d1)
-print("d2", d2)
-print("slope", (d2 - d1) / h)
+# print("d1", d1)
+# print("d2", d2)
+# print("slope", (d2 - d1) / h)
+
+## defining a class for a value
+
+class Value:
+    ## Dunder methods (magic methods)
+    def __init__(self, data): 
+        self.data = data 
+
+    def __repr__(self):
+        return f"Value(data={self.data})"
+
+    def __add__(self, other):
+        return Value(self.data + other.data)
+
+    def __mul__(self, other):
+        return Value(self.data * other.data)
+
+a = Value(2.0)
+b = Value(-3.0)
+c = Value(10.0)
+output = a * b + c
+print(output)
