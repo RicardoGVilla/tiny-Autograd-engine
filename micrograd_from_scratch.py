@@ -73,8 +73,9 @@ b = Value(-3.0, label='b')
 c = Value(10.0, label='c')
 e = a * b; e.label = "e"
 d = e + c; d.label = "d"
-output = d
-
+f = Value(-2.0, label='f')
+L = d * f ; L.label = "L"
+output = L
 
 
 def trace(root):
