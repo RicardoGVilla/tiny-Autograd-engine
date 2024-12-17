@@ -51,10 +51,11 @@ class Value:
     ## Adding pointers to keep track of the children of the node
     ## Keep track of the operation that created the node
     ## Visualizing the graph
-    def __init__(self, data, _children=(), _op=''): 
+    def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self._prev = set(_children)
         self._op = _op
+        self.label = label
 
     def __repr__(self):
         return f"Value(data={self.data})"
@@ -67,10 +68,12 @@ class Value:
         out = Value(self.data * other.data, (self, other), '*')
         return out
 
-a = Value(2.0)
-b = Value(-3.0)
-c = Value(10.0)
-output = a * b + c
+a = Value(2.0, label='a')
+b = Value(-3.0, label='b')
+c = Value(10.0, label='c')
+e = a * b; e.label = "e"
+d = e + c; d.label = "d"
+output = d
 
 
 
@@ -95,12 +98,15 @@ def draw_dot(root):
         if n._op:  # If it's an operation node
             # Create an oval node for the operation
             dot.node(name=uid+"_op", label=n._op, shape='ellipse', color='blue')
-            # Create a node for the data
-            dot.node(name=uid, label=f"data: {n.data:.4f}", shape='record')
+            # Create a node for the data with a label 
+            node_label = f"{n.label} | {n.data:.4f}" if n.label else f"data: {n.data:.4f}"
+            dot.node(name=uid, label="{ %s }" % node_label, shape='record')
             # Add an edge from the operation node to the data node
             dot.edge(uid+"_op", uid, style='dashed')
         else:
-            dot.node(name=uid, label=f"data: {n.data:.4f}", shape='record')
+            # For leaf nodes (data nodes without operations)
+            node_label = f"{n.label} | {n.data:.4f}" if n.label else f"data: {n.data:.4f}"
+            dot.node(name=uid, label="{ %s }" % node_label, shape='record')
         
     # Add edges
     for n1, n2 in edges:
@@ -114,6 +120,8 @@ def draw_dot(root):
     # Save the graph to a file
     dot.render('computation_graph', format='png', cleanup=True)
     return dot
+
+
 
 
 print("Output:", output)
