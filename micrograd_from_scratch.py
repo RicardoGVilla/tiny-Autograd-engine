@@ -51,8 +51,11 @@ class Value:
     ## Adding pointers to keep track of the children of the node
     ## Keep track of the operation that created the node
     ## Visualizing the graph
+    ## Backpropagation and calculating gradiants for all intermediate nodes
+    ## Adding a gradient attribute to the Value class for backpropagation
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
+        self.grad = 0.0
         self._prev = set(_children)
         self._op = _op
         self.label = label
