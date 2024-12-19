@@ -129,10 +129,19 @@ def draw_dot(root):
 
 
 
+L = d * f 
+dl/dd = ?f 
+
+## rise over run 
+(f(x + h) - f(x))/h
+((d+h)*f - (d)*f)/h
+(h*f)/h
+f
 
 print("Output:", output)
 dot = draw_dot(output)
 
+L.grad = 1
 
 def lol 
     h = 0.0001
@@ -153,7 +162,12 @@ def lol
     f = Value(-2.0, label='f')
     L = d * f ; L.label = "L"
     output2 = L
+    output2 = L.data
+    
+    
+    ## calculating the rise over run 
+    print((output/output2)/h)
     
     
     ## callculating the rise over run 
-    print((output/output2)/h)
+    print((output/output2)/h)lol()  
