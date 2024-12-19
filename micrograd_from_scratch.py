@@ -104,6 +104,7 @@ def draw_dot(root):
             dot.node(name=uid+"_op", label=n._op, shape='ellipse', color='blue')
             # Create a node for the data with a label 
             node_label = f"{n.label} | {n.data:.4f}" if n.label else f"data: {n.data:.4f}"
+            node_label = f"{n.label} | {n.data:.4f | grad %.4f}" if n.label else f"data: {n.data:.4f}"
             dot.node(name=uid, label="{ %s }" % node_label, shape='record')
             # Add an edge from the operation node to the data node
             dot.edge(uid+"_op", uid, style='dashed')
