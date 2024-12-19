@@ -53,6 +53,7 @@ class Value:
     ## Visualizing the graph
     ## Backpropagation and calculating gradiants for all intermediate nodes
     ## Adding a gradient attribute to the Value class for backpropagation
+    ## Calculating backpropagation manually to better understand the logic behind the library 
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
@@ -131,3 +132,28 @@ def draw_dot(root):
 
 print("Output:", output)
 dot = draw_dot(output)
+
+
+def lol 
+    h = 0.0001
+    a = Value(2.0, label='a')
+    b = Value(-3.0, label='b')
+    c = Value(10.0, label='c')
+    e = a * b; e.label = "e"
+    d = e + c; d.label = "d"
+    f = Value(-2.0, label='f')
+    L = d * f ; L.label = "L"
+    output = L
+    
+    a = Value(2.0 + h, label='a')
+    b = Value(-3.0, label='b')
+    c = Value(10.0, label='c')
+    e = a * b; e.label = "e"
+    d = e + c; d.label = "d"
+    f = Value(-2.0, label='f')
+    L = d * f ; L.label = "L"
+    output2 = L
+    
+    
+    ## callculating the rise over run 
+    print((output/output2)/h)
