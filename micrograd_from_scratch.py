@@ -50,6 +50,7 @@ class Value:
     ## Backpropagation and calculating gradiants for all intermediate nodes
     ## Adding a gradient attribute to the Value class for backpropagation
     ## Calculating backpropagation manually to better understand the logic behind the library 
+    ## Calculating the gradient using the lol function
     ## Understanding neural networks and how they work 
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
@@ -207,6 +208,9 @@ dot = draw_dot(L)
 # inline gradient calculation 
 def lol():
     h = 0.0001
+
+
+    ## Calculate the output of the function 
     a = Value(2.0, label='a')
     b = Value(-3.0, label='b')
     c = Value(10.0, label='c')
@@ -216,6 +220,8 @@ def lol():
     L = d * f ; L.label = "L"
     output = L
     
+
+    ## Calculate the output of the function with the input incremented by h
     a = Value(2.0 + h, label='a')
     b = Value(-3.0, label='b')
     c = Value(10.0, label='c')
@@ -223,18 +229,14 @@ def lol():
     d = e + c; d.label = "d"
     f = Value(-2.0, label='f')
     L = d * f ; L.label = "L"
-    output2 = L
+    output = L.data
     output2 = L.data
     
     
-    ## calculating the rise over run 
-    print((output/output2)/h)
-    
-    
-    ## calculating the rise over run 
+    ## Calculating the derivative of the function with respect to the input
     print((output/output2)/h)
 
-##lol()
+lol()   
 
 
 '''
