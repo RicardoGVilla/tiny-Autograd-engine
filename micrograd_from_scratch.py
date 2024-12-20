@@ -71,6 +71,14 @@ class Value:
     def __mul__(self, other):
         out = Value(self.data * other.data, (self, other), '*')
         return out
+    
+    # Implement the tanh function (hyperbolic function)
+    def tanh(self):
+        x = self.data
+        t = (math.exp(2 * x) - 1) / (math.exp(2 * x) + 1)
+        out = Value(t, (self,), "tanh")
+        return out
+
 
 a = Value(2.0, label='a')
 b = Value(-3.0, label='b')
@@ -134,8 +142,13 @@ d.grad = f.data
 f.grad = d.data
 
 
-dot = draw_dot(L)
 
+
+
+
+
+## defining a function to calculate the derivative of a function
+# inline gradient calculation 
 def lol():
     h = 0.0001
     a = Value(2.0, label='a')
@@ -166,3 +179,61 @@ def lol():
     print((output/output2)/h)
 
 ##lol()
+
+## setting up the variables 
+# h = 0.0001
+# d = 4000
+# c = 1000
+# e = -6000
+
+# d = c + e
+# print(d)
+
+# result = d / c
+
+# Calculating the slope run over
+# ((c + h + e) - ((c + e)))/h
+# which gives us:
+# (c + h + e - c - e)/h
+# Variable cancellation
+# h/h
+
+# Therefore we result with the following local slope (local derivative)
+# d/c = 1
+
+# Applying the chain rule
+# L / c = L / d * d / c
+
+c.grad = -2.000
+e.grad = -2.000
+
+
+
+# Derivative of L with respect to a
+# L / a = (L / e) * (e / a)
+
+e = a * b
+# e / a = 1
+
+# L / a = (L / e) * (e / a)
+a.grad = -2.0 * -3.0
+b.grad = -2.0 * 2.0
+
+# Reflect the changes on the graph
+
+x1 = Value(2.0, label="x1")
+x2 = Value(0.0, label="x2")
+w1 = Value(-3.0, label="w1")
+w2 = Value(1.0, label="w2")
+b = Value(6.7, label="b")
+
+x1w1 = x1 * w1
+x1w1.label = "x1*w1"
+
+x2w2 = x2 * w2
+x2w2.label = "x2*w2"
+
+x1w1x2w2 = x1w1 + x2w2
+x1w1x2w2.label = "x1*w1 + x2*w2"
+
+dot = draw_dot(L)
