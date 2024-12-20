@@ -202,7 +202,7 @@ a.grad = -2.0 * -3.0
 b.grad = -2.0 * 2.0
 
 
-dot = draw_dot(L)
+# dot = draw_dot(L)
 
 ## defining a function to calculate the derivative of a function
 # inline gradient calculation 
@@ -239,20 +239,32 @@ def lol():
 lol()   
 
 
-'''
-# Reflect the changes on the graph
+# input values
 x1 = Value(2.0, label="x1")
 x2 = Value(0.0, label="x2")
+
+# The weights of the functions 
 w1 = Value(-3.0, label="w1")
 w2 = Value(1.0, label="w2")
+
+# The bias of the function
 b = Value(6.7, label="b")
 
+# Calculating the output of the function
 x1w1 = x1 * w1
 x1w1.label = "x1*w1"
 
+# Calculating the output of the function with the input increment by h 
 x2w2 = x2 * w2
 x2w2.label = "x2*w2"
 
+
+# Calculating the output of the function with the input increment by h
 x1w1x2w2 = x1w1 + x2w2
 x1w1x2w2.label = "x1*w1 + x2*w2"
-'''
+n = x1w1x2w2 +b; n.label = "n"
+
+# Calculating the output of the function with the hyperbolic tangent function
+o = n.tanh(); o.label = "o"
+
+draw_dot(n)
