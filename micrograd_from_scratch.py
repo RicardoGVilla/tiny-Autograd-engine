@@ -127,6 +127,12 @@ def draw_dot(root):
 # gradient of L with respect to L
 L.grad = 1
 
+#gradient of L with respect to d
+d.grad = f.data
+
+#gradient of L with respect to f
+f.grad = d.data
+
 
 dot = draw_dot(L)
 
