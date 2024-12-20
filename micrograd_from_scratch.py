@@ -100,18 +100,15 @@ def draw_dot(root):
     # Add nodes
     for n in nodes:
         uid = str(id(n))
-        if n._op:  # If it's an operation node
-            # Create an oval node for the operation
+        if n._op:
             dot.node(name=uid+"_op", label=n._op, shape='ellipse', color='blue')
-            # Create a node for the data with a label 
-            node_label = f"{n.label} | {n.data:.4f}" if n.label else f"data: {n.data:.4f}"
-            node_label = f"{n.label} | {n.data:.4f | grad %.4f}" if n.label else f"data: {n.data:.4f}"
+            # Create an oval node for the operation
+            node_label = f"{n.label} | data: {n.data:.4f} | grad: {n.grad:.4f}" if n.label else f"data: {n.data:.4f}"
             dot.node(name=uid, label="{ %s }" % node_label, shape='record')
-            # Add an edge from the operation node to the data node
             dot.edge(uid+"_op", uid, style='dashed')
         else:
-            # For leaf nodes (data nodes without operations)
-            node_label = f"{n.label} | {n.data:.4f}" if n.label else f"data: {n.data:.4f}"
+            # Update the leaf node format as well
+            node_label = f"{n.label} | data: {n.data:.4f} | grad: {n.grad:.4f}" if n.label else f"data: {n.data:.4f}"
             dot.node(name=uid, label="{ %s }" % node_label, shape='record')
         
     # Add edges
@@ -129,21 +126,21 @@ def draw_dot(root):
 
 
 
-L = d * f 
-dl/dd = ?f 
+## L = d * f 
+## dl/dd = ?f 
 
 ## rise over run 
-(f(x + h) - f(x))/h
-((d+h)*f - (d)*f)/h
-(h*f)/h
-f
+## (f(x + h) - f(x))/h
+## ((d+h)*f - (d)*f)/h
+## (h*f)/h
+## f
 
 print("Output:", output)
 dot = draw_dot(output)
 
 L.grad = 1
 
-def lol 
+def lol():
     h = 0.0001
     a = Value(2.0, label='a')
     b = Value(-3.0, label='b')
@@ -169,5 +166,7 @@ def lol
     print((output/output2)/h)
     
     
-    ## callculating the rise over run 
-    print((output/output2)/h)lol()  
+    ## calculating the rise over run 
+    print((output/output2)/h)
+
+##lol()
