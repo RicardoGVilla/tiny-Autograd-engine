@@ -79,7 +79,7 @@ e = a * b; e.label = "e"
 d = e + c; d.label = "d"
 f = Value(-2.0, label='f')
 L = d * f ; L.label = "L"
-output = L
+L
 
 
 def trace(root):
@@ -124,21 +124,11 @@ def draw_dot(root):
     dot.render('computation_graph', format='png', cleanup=True)
     return dot
 
-
-
-## L = d * f 
-## dl/dd = ?f 
-
-## rise over run 
-## (f(x + h) - f(x))/h
-## ((d+h)*f - (d)*f)/h
-## (h*f)/h
-## f
-
-print("Output:", output)
-dot = draw_dot(output)
-
+# gradient of L with respect to L
 L.grad = 1
+
+
+dot = draw_dot(L)
 
 def lol():
     h = 0.0001
