@@ -40,12 +40,8 @@ d1 = a*b + c
 a += h 
 d2 = a*b + c
 
-# print("d1", d1)
-# print("d2", d2)
-# print("slope", (d2 - d1) / h)
 
-## defining a class for a value
-
+## defining a class Value
 class Value:
     ## Dunder methods (magic methods)
     ## Adding pointers to keep track of the children of the node
@@ -54,6 +50,7 @@ class Value:
     ## Backpropagation and calculating gradiants for all intermediate nodes
     ## Adding a gradient attribute to the Value class for backpropagation
     ## Calculating backpropagation manually to better understand the logic behind the library 
+    ## Understanding neural networks and how they work 
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
@@ -80,17 +77,28 @@ class Value:
         return out
 
 
+##Creating the first three nodes 
 a = Value(2.0, label='a')
 b = Value(-3.0, label='b')
 c = Value(10.0, label='c')
+
+
+## Creating the first operation (multiplication)
 e = a * b; e.label = "e"
+
+# Creating the second operation (addition)
 d = e + c; d.label = "d"
+
+# Creating the third operation (multiplication)
 f = Value(-2.0, label='f')
 L = d * f ; L.label = "L"
+
+# output of the graph 
 L
 
-
+## building the graph with the trace function 
 def trace(root):
+    ## creating a set of nodes and edges 
     nodes, edges = set(), set()
     def build(v):
         if v not in nodes:
@@ -132,20 +140,68 @@ def draw_dot(root):
     dot.render('computation_graph', format='png', cleanup=True)
     return dot
 
+
+# Calculating the gradients of L with respect to the nodes 
+
 # gradient of L with respect to L
 L.grad = 1
 
 #gradient of L with respect to d
 d.grad = f.data
-
 #gradient of L with respect to f
 f.grad = d.data
 
 
+## setting up the variables 
+# h = 0.0001
+# d = 4000
+# c = 1000
+# e = -6000
+
+
+#calculating the derivative of d with respect to L
+# d = c + e
+
+# result = d / c
+
+# Calculating the slope run over
+# ((c + h + e) - ((c + e)))/h
+# which gives us:
+# (c + h + e - c - e)/h
+# Variable cancellation
+# h/h
+
+# Therefore we result with the following local slope (local derivative)
+# d/c = 1
+
+# Applying the chain rule
+# L / c = L / d * d / c
+
+## gradient of c with respect to L
+c.grad = -2.000
+
+## gradient of e with respect to L
+e.grad = -2.000
+
+
+# Calculating the derivative of L with respect to a 
+# L / a = (L / e) * (e / a)
+
+e = a * b
+# e / a = 1
+
+# L / a = (L / e) * (e / a)
 
 
 
+## gradients of a with respect to L 
+a.grad = -2.0 * -3.0
 
+## gradients of b with respect to L 
+b.grad = -2.0 * 2.0
+
+
+dot = draw_dot(L)
 
 ## defining a function to calculate the derivative of a function
 # inline gradient calculation 
@@ -180,47 +236,9 @@ def lol():
 
 ##lol()
 
-## setting up the variables 
-# h = 0.0001
-# d = 4000
-# c = 1000
-# e = -6000
 
-# d = c + e
-# print(d)
-
-# result = d / c
-
-# Calculating the slope run over
-# ((c + h + e) - ((c + e)))/h
-# which gives us:
-# (c + h + e - c - e)/h
-# Variable cancellation
-# h/h
-
-# Therefore we result with the following local slope (local derivative)
-# d/c = 1
-
-# Applying the chain rule
-# L / c = L / d * d / c
-
-c.grad = -2.000
-e.grad = -2.000
-
-
-
-# Derivative of L with respect to a
-# L / a = (L / e) * (e / a)
-
-e = a * b
-# e / a = 1
-
-# L / a = (L / e) * (e / a)
-a.grad = -2.0 * -3.0
-b.grad = -2.0 * 2.0
-
+'''
 # Reflect the changes on the graph
-
 x1 = Value(2.0, label="x1")
 x2 = Value(0.0, label="x2")
 w1 = Value(-3.0, label="w1")
@@ -235,5 +253,4 @@ x2w2.label = "x2*w2"
 
 x1w1x2w2 = x1w1 + x2w2
 x1w1x2w2.label = "x1*w1 + x2*w2"
-
-dot = draw_dot(L)
+'''
