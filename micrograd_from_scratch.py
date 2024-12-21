@@ -52,6 +52,7 @@ class Value:
     ## Calculating backpropagation manually to better understand the logic behind the library 
     ## Calculating the gradient using the lol function
     ## Understanding neural networks and how they work 
+    ## Adding activation functions introduces non-linearity, which allows the network to model complex, non-linear relationships between inputs and outputs.Essential for tasks that require non linear decision boundaries such as image classification, speech recognition and natural language processing 
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
@@ -74,9 +75,10 @@ class Value:
     def tanh(self):
         x = self.data
         t = (math.exp(2 * x) - 1) / (math.exp(2 * x) + 1)
-        out = Value(t, (self,), "tanh")
+        out = Value(t, (self, ), "tanh")
         return out
-
+    
+ 
 
 ##Creating the first three nodes 
 a = Value(2.0, label='a')
@@ -117,30 +119,28 @@ def draw_dot(root):
     # Add nodes
     for n in nodes:
         uid = str(id(n))
+        # Create node label consistently for all nodes
+        node_label = f"{n.label} | data: {n.data:.4f} | grad: {n.grad:.4f}" if n.label else f"data: {n.data:.4f} | grad: {n.grad:.4f}"
+        
         if n._op:
+            # Operation node
             dot.node(name=uid+"_op", label=n._op, shape='ellipse', color='blue')
-            # Create an oval node for the operation
-            node_label = f"{n.label} | data: {n.data:.4f} | grad: {n.grad:.4f}" if n.label else f"data: {n.data:.4f}"
             dot.node(name=uid, label="{ %s }" % node_label, shape='record')
             dot.edge(uid+"_op", uid, style='dashed')
         else:
-            # Update the leaf node format as well
-            node_label = f"{n.label} | data: {n.data:.4f} | grad: {n.grad:.4f}" if n.label else f"data: {n.data:.4f}"
+            # Data node
             dot.node(name=uid, label="{ %s }" % node_label, shape='record')
         
     # Add edges
     for n1, n2 in edges:
         if n2._op:
-            # Edge from data to operation
             dot.edge(str(id(n1)), str(id(n2))+"_op")
         else:
-            # Edge from operation to data (normally shouldn't happen without an op)
             dot.edge(str(id(n1))+"_op", str(id(n2)))
     
     # Save the graph to a file
     dot.render('computation_graph', format='png', cleanup=True)
     return dot
-
 
 # Calculating the gradients of L with respect to the nodes 
 
@@ -247,24 +247,22 @@ x2 = Value(0.0, label="x2")
 w1 = Value(-3.0, label="w1")
 w2 = Value(1.0, label="w2")
 
-# The bias of the function
+# The bias of the neuron
 b = Value(6.7, label="b")
 
 # Calculating the output of the function
-x1w1 = x1 * w1
-x1w1.label = "x1*w1"
+x1w1 = x1 * w1; x1w1.label = "x1*w1"
 
 # Calculating the output of the function with the input increment by h 
-x2w2 = x2 * w2
-x2w2.label = "x2*w2"
+x2w2 = x2 * w2; x2w2.label = "x2*w2"
 
 
 # Calculating the output of the function with the input increment by h
-x1w1x2w2 = x1w1 + x2w2
-x1w1x2w2.label = "x1*w1 + x2*w2"
-n = x1w1x2w2 +b; n.label = "n"
-
-# Calculating the output of the function with the hyperbolic tangent function
-o = n.tanh(); o.label = "o"
+x1w1x2w2 = x1w1 + x2w2; x1w1x2w2.label = "x1*w1 + x2*w2"
+n = x1w1x2w2 + b; n.label = "n"
 
 draw_dot(n)
+
+# Calculating the output of the function with the hyperbolic tangent function
+o = n.tanh(); 
+draw_dot(o)
