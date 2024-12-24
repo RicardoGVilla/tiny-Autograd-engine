@@ -72,6 +72,7 @@ class Value:
         return out
     
     # Implement the tanh function (hyperbolic function)
+    ## the tanh function is a non linear function that maps any real number to the range [-1,1]
     def tanh(self):
         x = self.data
         t = (math.exp(2 * x) - 1) / (math.exp(2 * x) + 1)
@@ -248,7 +249,7 @@ w1 = Value(-3.0, label="w1")
 w2 = Value(1.0, label="w2")
 
 # The bias of the neuron
-b = Value(6.7, label="b")
+b = Value(6.881373587019541, label="b")
 
 # Calculating the output of the function
 x1w1 = x1 * w1; x1w1.label = "x1*w1"
@@ -264,5 +265,19 @@ n = x1w1x2w2 + b; n.label = "n"
 draw_dot(n)
 
 # Calculating the output of the function with the hyperbolic tangent function
-o = n.tanh(); 
+
+
+o = n.tanh(); o.label = "o" 
+
+## Calculating the derivatives 
+
+# the derivative of o with respect to o (base case)
+o.grad = 1.0 
+
+# calculating the derivative of o with respect to n 
+n.grad = o.grad * (1 - o.data**2)
+
+# backpropagating through tanh 
+
+
 draw_dot(o)
