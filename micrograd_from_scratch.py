@@ -54,10 +54,11 @@ class Value:
     ## Understanding neural networks and how they work 
     ## Adding activation functions introduces non-linearity, which allows the network to model complex, non-linear relationships between inputs and outputs.Essential for tasks that require non linear decision boundaries such as image classification, speech recognition and natural language processing
     ## Coding the backpropagation process 
+    ## Applying topological sort to the graph before backpropagation 
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
-        self.backward = lambda: None
+        self._backward = lambda: None
         self._prev = set(_children)
         self._op = _op
         self.label = label
@@ -72,7 +73,7 @@ class Value:
             ## the local derivative of the addition operation is 1
             self.grad = 1.0 * out.grad 
             other.grad = 1.0 * out.grad
-        out.backward = _backward 
+        out._backward = _backward 
 
         return out
 
@@ -83,7 +84,7 @@ class Value:
             ## the local derivative of the multiplication operation is the other.data
             self.grad = other.data * out.grad 
             other.grad = self.data * out.grad 
-        out.backward = _backward
+        out._backward = _backward
 
         return out
     
@@ -97,8 +98,26 @@ class Value:
         def _backward():
             ## the local derivative of the tanh function is 1 - (self.data)**2
             self.grad = (1 - t**2) * out.grad 
-        out.backward = _backward
+        out._backward = _backward
         return out
+    
+    def backward(self):
+
+        topo = []
+        visited = set()
+        ## calling _backward on each node in topological order
+        def build_topo(v):
+            if v not in visited:
+                visited.add(v)
+                for child in v._prev:
+                    build_topo(child)
+                topo.append(v)
+        build_topo(self)
+
+        self.grad = 1.00
+
+        for node in reversed(topo):
+            node._backward() 
     
  
 
@@ -313,14 +332,15 @@ o = n.tanh(); o.label = "o"
 # w1.grad = x1.data * x1w1.grad 
 
 
-
 # Obtaining the grad for all the nodes propagating backwards through the graph 
-o.grad = 1.00
+# o.grad = 1.00
+# o.backward()
+# n.backward()
+# b.backward()
+# x1w1x2w2.backward()
+# x2w2.backward()
+# x1w1.backward()
+
 o.backward()
-n.backward()
-b.backward()
-x1w1x2w2.backward()
-x2w2.backward()
-x1w1.backward()
 
 draw_dot(o)
