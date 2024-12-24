@@ -52,10 +52,12 @@ class Value:
     ## Calculating backpropagation manually to better understand the logic behind the library 
     ## Calculating the gradient using the lol function
     ## Understanding neural networks and how they work 
-    ## Adding activation functions introduces non-linearity, which allows the network to model complex, non-linear relationships between inputs and outputs.Essential for tasks that require non linear decision boundaries such as image classification, speech recognition and natural language processing 
+    ## Adding activation functions introduces non-linearity, which allows the network to model complex, non-linear relationships between inputs and outputs.Essential for tasks that require non linear decision boundaries such as image classification, speech recognition and natural language processing
+    ## Coding the backpropagation process 
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
+        self.backward = lambda: None
         self._prev = set(_children)
         self._op = _op
         self.label = label
@@ -65,10 +67,24 @@ class Value:
 
     def __add__(self, other):
         out = Value(self.data + other.data, (self, other), '+')
+
+        def _backward():
+            ## the local derivative of the addition operation is 1
+            self.grad = 1.0 * out.grad 
+            other.grad = 1.0 * out.grad
+        out.backward = _backward 
+
         return out
 
     def __mul__(self, other):
         out = Value(self.data * other.data, (self, other), '*')
+
+        def _backward():
+            ## the local derivative of the multiplication operation is the other.data
+            self.grad = other.data * out.grad 
+            other.grad = self.data * out.grad 
+        out.backward = _backward
+
         return out
     
     # Implement the tanh function (hyperbolic function)
@@ -77,6 +93,11 @@ class Value:
         x = self.data
         t = (math.exp(2 * x) - 1) / (math.exp(2 * x) + 1)
         out = Value(t, (self, ), "tanh")
+
+        def _backward():
+            ## the local derivative of the tanh function is 1 - (self.data)**2
+            self.grad = (1 - t**2) * out.grad 
+        out.backward = _backward
         return out
     
  
@@ -272,13 +293,34 @@ o = n.tanh(); o.label = "o"
 ## Calculating the derivatives 
 
 # the derivative of o with respect to o (base case)
-o.grad = 1.0 
+# o.grad = 1.0 
 
 # calculating the derivative of o with respect to n 
-n.grad = o.grad * (1 - o.data**2)
+# n.grad = o.grad * (1 - o.data**2)
 
 # calculating the derivative of o with respect to x1w1x2ww2 
-x1w1x2w2.grad = 0.5 
-b.grad = 0.5 
+# x1w1x2w2.grad = 0.5 
+# b.grad = 0.5 
+
+# calculating the derivative of o with respect to x1w1 
+# x1w1.grad = 0.5 
+# x2w2.grad = 0.5 
+
+# calculating the derivative of 0 with respect to x2, w2, x1, w1
+# x2.grad = w2.data * x2w2.grad 
+# w2.grad = x2.data * x2w2.grad 
+# x1.grad = w1.data * x1w1.grad 
+# w1.grad = x1.data * x1w1.grad 
+
+
+
+# Obtaining the grad for all the nodes propagating backwards through the graph 
+o.grad = 1.00
+o.backward()
+n.backward()
+b.backward()
+x1w1x2w2.backward()
+x2w2.backward()
+x1w1.backward()
 
 draw_dot(o)
