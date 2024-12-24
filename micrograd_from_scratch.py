@@ -277,7 +277,8 @@ o.grad = 1.0
 # calculating the derivative of o with respect to n 
 n.grad = o.grad * (1 - o.data**2)
 
-# backpropagating through tanh 
-
+# calculating the derivative of o with respect to x1w1x2ww2 
+x1w1x2w2.grad = 0.5 
+b.grad = 0.5 
 
 draw_dot(o)
