@@ -55,6 +55,7 @@ class Value:
     ## Adding activation functions introduces non-linearity, which allows the network to model complex, non-linear relationships between inputs and outputs.Essential for tasks that require non linear decision boundaries such as image classification, speech recognition and natural language processing
     ## Coding the backpropagation process 
     ## Applying topological sort to the graph before backpropagation 
+    ## Bug when using a variable more than one in the graph (accumulating gradients)
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
@@ -67,23 +68,57 @@ class Value:
         return f"Value(data={self.data})"
 
     def __add__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data + other.data, (self, other), '+')
 
         def _backward():
             ## the local derivative of the addition operation is 1
-            self.grad = 1.0 * out.grad 
-            other.grad = 1.0 * out.grad
+            self.grad += 1.0 * out.grad 
+            other.grad += 1.0 * out.grad
         out._backward = _backward 
 
         return out
+    
+    ## substraction operation
+    def _sub_(self,other):
+        return self + (-other)
+    
+    ## power operation
+    def _pow_(self,other):
+        assert isinstance(other, (int, float)), "only supporting int/float powers for now"
+        out = Value(self.data ** other, (self, ), f'**{other}')
 
+        def _backward():
+            self.grad += other * (self.data ** (other - 1)) * out.grad 
+        out._backward = _backward
+        return out
+    
+    ## division operation 
+    def _truediv_(self,other):
+        return self * other ** -1
+    
+    ## fall back to the multiplication operation if the other is not a Value
+    def _rrmul_(self,other): 
+        return self * other 
+    
+    ## exponential operation 
+    def exp(self):
+        x = self.data
+        out = Value(math.exp(x), (self,),'expo')
+
+        def _backward():
+            self.grad = out.data + out.grad
+        out._backward = _backward
+        return out 
+    
     def __mul__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
         out = Value(self.data * other.data, (self, other), '*')
 
         def _backward():
             ## the local derivative of the multiplication operation is the other.data
-            self.grad = other.data * out.grad 
-            other.grad = self.data * out.grad 
+            self.grad += other.data * out.grad 
+            other.grad += self.data * out.grad 
         out._backward = _backward
 
         return out
@@ -97,7 +132,7 @@ class Value:
 
         def _backward():
             ## the local derivative of the tanh function is 1 - (self.data)**2
-            self.grad = (1 - t**2) * out.grad 
+            self.grad += (1 - t**2) * out.grad 
         out._backward = _backward
         return out
     
