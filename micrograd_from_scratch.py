@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from graphviz import Digraph
 from IPython.display import Image
-
+import torch 
+import random
 
 ## define function
 def f(x):
@@ -56,6 +57,8 @@ class Value:
     ## Coding the backpropagation process 
     ## Applying topological sort to the graph before backpropagation 
     ## Bug when using a variable more than one in the graph (accumulating gradients)
+    ## Breaking down the tanh function into smaller parts
+    ## Using pytorch to build a simple perceptron ( the simple type of neural network. A perceptron is a single layer neural network that can only solve linear problems) It cannot handle xor problems
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
@@ -339,7 +342,6 @@ n = x1w1x2w2 + b; n.label = "n"
 
 draw_dot(n)
 
-# Calculating the output of the function with the hyperbolic tangent function
 
 
 o = n.tanh(); o.label = "o" 
@@ -379,3 +381,65 @@ o = n.tanh(); o.label = "o"
 o.backward()
 
 draw_dot(o)
+
+x1 = torch.tensor([2.0]).double() ; x1.requires_grad = True
+x2 = torch.tensor([0.0]).double() ; x2.requires_grad = True
+w1 = torch.tensor([-3.0]).double() ; w1.requires_grad = True
+w2 = torch.tensor([1.0]).double() ; w2.requires_grad = True
+b = torch.tensor([6.881373587019541]).double() ; b.requires_grad = True
+
+n = x1 * w1 + x2 * w2 + b 
+o = torch.tanh(n)
+print(o.data.item())
+o.backward()
+
+print("----")
+print("x2", x2.grad.item())
+print("w2", w2.grad.item())
+print("x1", x1.grad.item())
+print("w1", w1.grad.item())
+
+
+ ## Building a simple neural network with a single neuron
+class Neuron:
+    ## nin is the number of inputs to the neuron
+    def __init__(self, nin):
+        self.w = [Value(random.uniform(-1,1)) for _ in range(nin)]
+        self.b = Value(random.uniform(-1,1))
+
+    ## calling the neuron with the input x
+    def __call__(self, x):
+        # w * x + b 
+        act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
+        out = act.tanh()
+        return out
+
+# Building a layer or neurons
+class Layer:
+    ## nin is the numberof inputs to the layer
+    def __init__(self, nin, nout):
+        self.neurons = [Neuron(nin) for _ in range(nout)]
+
+    ## calling the layer with the input x 
+    def __call__(self, x):
+        outs = [n(x) for n in self.neurons]
+        return outs[0] if len(outs) == 1 else outs
+    
+class MLP:
+    ## nin is the number of inputs to the MLP
+    ## nouts is the number of outputs to the MLP
+    def __init__(self, nin, nouts):
+        sz = [nin] + nouts
+        self.layers = [Layer(sz[i], sz[i+1]) for i in range(len(nouts))]
+
+    def __call__(self, x):
+        for layer in self.layers:
+            x = layer(x)
+        return x
+
+x = [2.0, 3.0, -1.0]
+## Building a simple neural network that has 3 inputs, 2 hidden layers with 4 neurons each, and 1 output neuron
+n = MLP(3, [4, 4, 1])
+print(n(x))
+
+draw_dot(n(x))
