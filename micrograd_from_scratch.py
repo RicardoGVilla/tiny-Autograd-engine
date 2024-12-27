@@ -7,6 +7,35 @@ from IPython.display import Image
 import torch 
 import random
 
+
+
+    ## Dunder methods (magic methods)
+    ## Adding pointers to keep track of the children of the node
+    ## Keep track of the operation that created the node
+    ## Visualizing the graph
+    ## Backpropagation and calculating gradiants for all intermediate nodes
+    ## Adding a gradient attribute to the Value class for backpropagation
+    ## Calculating backpropagation manually to better understand the logic behind the library 
+    ## Calculating the gradient using the lol function
+    ## Understanding neural networks and how they work 
+    ## Adding activation functions introduces non-linearity, which allows the network to model complex, non-linear relationships between inputs and outputs.Essential for tasks that require non linear decision boundaries such as image classification, speech recognition and natural language processing
+    ## Coding the backpropagation process 
+    ## Applying topological sort to the graph before backpropagation 
+    ## Bug when using a variable more than one in the graph (accumulating gradients)
+    ## Breaking down the tanh function into smaller parts
+    ## Using pytorch to build a simple perceptron ( the simple type of neural network. A perceptron is a single layer neural network that can only solve linear problems) It cannot handle xor problems
+    ## Building a simple neural network with a single neuron
+    ## Building a layer or neurons
+    ## Building a multi-layer perceptron (MLP)
+    ## Adding parameters methods to the neuron and layer classes for easier access to the parameters
+    ## Performing backward and forward passes on the MLP for training 
+    ## Verifying the output after gradient descent
+
+
+
+
+
+
 ## define function
 def f(x):
     return 3*x**2 - 4*x + 5
@@ -44,21 +73,7 @@ d2 = a*b + c
 
 ## defining a class Value
 class Value:
-    ## Dunder methods (magic methods)
-    ## Adding pointers to keep track of the children of the node
-    ## Keep track of the operation that created the node
-    ## Visualizing the graph
-    ## Backpropagation and calculating gradiants for all intermediate nodes
-    ## Adding a gradient attribute to the Value class for backpropagation
-    ## Calculating backpropagation manually to better understand the logic behind the library 
-    ## Calculating the gradient using the lol function
-    ## Understanding neural networks and how they work 
-    ## Adding activation functions introduces non-linearity, which allows the network to model complex, non-linear relationships between inputs and outputs.Essential for tasks that require non linear decision boundaries such as image classification, speech recognition and natural language processing
-    ## Coding the backpropagation process 
-    ## Applying topological sort to the graph before backpropagation 
-    ## Bug when using a variable more than one in the graph (accumulating gradients)
-    ## Breaking down the tanh function into smaller parts
-    ## Using pytorch to build a simple perceptron ( the simple type of neural network. A perceptron is a single layer neural network that can only solve linear problems) It cannot handle xor problems
+   
     def __init__(self, data, _children=(), _op='', label=''): 
         self.data = data 
         self.grad = 0.0
@@ -83,11 +98,18 @@ class Value:
         return out
     
     ## substraction operation
-    def _sub_(self,other):
-        return self + (-other)
+    def __sub__(self, other):
+        other = other if isinstance(other, Value) else Value(other)
+        return self + (-1 * other)
+    
+    def __rsub__(self, other):
+        return self.__sub__(other)
+    
+    def __neg__(self):
+        return self * -1
     
     ## power operation
-    def _pow_(self,other):
+    def __pow__(self, other):
         assert isinstance(other, (int, float)), "only supporting int/float powers for now"
         out = Value(self.data ** other, (self, ), f'**{other}')
 
@@ -101,8 +123,8 @@ class Value:
         return self * other ** -1
     
     ## fall back to the multiplication operation if the other is not a Value
-    def _rrmul_(self,other): 
-        return self * other 
+    def __rmul__(self, other):
+        return self * other
     
     ## exponential operation 
     def exp(self):
@@ -413,6 +435,10 @@ class Neuron:
         act = sum((wi * xi for wi, xi in zip(self.w, x)), self.b)
         out = act.tanh()
         return out
+    
+    ## getting the parameters of the neuron. returns the parameters scalar values
+    def parameters(self):
+        return self.w + [self.b]
 
 # Building a layer or neurons
 class Layer:
@@ -425,6 +451,11 @@ class Layer:
         outs = [n(x) for n in self.neurons]
         return outs[0] if len(outs) == 1 else outs
     
+    ## getting the parameters of the layer. returns the parameters scalar values
+    def parameters(self):
+        return [p for neuron in self.neurons for p in neuron.parameters()]
+        
+
 class MLP:
     ## nin is the number of inputs to the MLP
     ## nouts is the number of outputs to the MLP
@@ -436,6 +467,10 @@ class MLP:
         for layer in self.layers:
             x = layer(x)
         return x
+    
+    ## getting the parameters of the MLP. returns the parameters scalar values
+    def parameters(self):
+        return [p for layer in self.layers for p in layer.parameters()]
 
 x = [2.0, 3.0, -1.0]
 ## Building a simple neural network that has 3 inputs, 2 hidden layers with 4 neurons each, and 1 output neuron
@@ -443,3 +478,62 @@ n = MLP(3, [4, 4, 1])
 print(n(x))
 
 draw_dot(n(x))
+
+## Creating a simple dataset
+xs = [
+    [2.0, 3.0, -1.0],
+    [3.0, -1.0, 0.5],
+    [0.5, 1.0, 1.0],
+    [1.0, 1.0, -1.0]
+]
+
+## Desired output
+ys = [1.0, -1.0, -1.0, 1.0]
+
+
+## Predicted output
+ypred = [n(x) for x in xs]
+print(ypred)
+
+
+## Calculating the loss 
+loss = Value(0.0)
+for ygt, yout in zip(ys, ypred):
+    loss = loss + (yout - ygt)**2
+print("Loss function",loss)
+
+loss.backward()
+
+
+
+for p in n.parameters():
+    p.data += -0.01 * p.grad
+
+print("Loss after 1 step of gradient descent", n(x))
+print("Ypred after 1 step of gradient descent", ypred)
+
+# Training loop
+for k in range(100):  # 100 epochs
+    # Forward pass
+    ypred = [n(x) for x in xs]
+    
+    # Compute loss
+    loss = Value(0.0)
+    for ygt, yout in zip(ys, ypred):
+        loss = loss + (yout - ygt)**2
+    
+    # Backward pass
+    for p in n.parameters():
+        p.grad = 0.0  # Zero grad before backward pass
+    loss.backward()
+    
+    # Update weights
+    learning_rate = 0.05  
+    for p in n.parameters():
+        p.data += -learning_rate * p.grad
+    
+    # Printing progress every 10 epochs
+    if k % 10 == 0:
+        print(f"Step {k}: loss = {loss.data}")
+
+print("predictions after training", ypred)
