@@ -524,7 +524,7 @@ for k in range(100):  # 100 epochs
     
     # Backward pass
     for p in n.parameters():
-        p.grad = 0.0  # Zero grad before backward pass
+        p.grad = 0.0  
     loss.backward()
     
     # Update weights
